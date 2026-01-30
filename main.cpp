@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
+#include <ctime>
+#include <clocale>
 
 #define MAX_ORDERS 100
 #define MAX_NAME 51
@@ -31,7 +32,35 @@ int order_count = 0;
 int status_timeline[MAX_ORDERS][STATUS_COUNT];
 
 void print_header(void) {
+    char date_buf[64] = "";
+    std::time_t now = std::time(nullptr);
+    std::tm *local = std::localtime(&now);
+    if (local != nullptr) {
+        const char *days[] = {
+            "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"
+        };
+        const char *months[] = {
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        };
+        int wday = local->tm_wday;
+        int mon = local->tm_mon;
+        if (wday >= 0 && wday < 7 && mon >= 0 && mon < 12) {
+            std::snprintf(
+                date_buf,
+                sizeof(date_buf),
+                "%s, %02d %s %d",
+                days[wday],
+                local->tm_mday,
+                months[mon],
+                1900 + local->tm_year
+            );
+        }
+    }
     printf("=== LAUNDRYEXPRESS PRO MANAGEMENT SYSTEM ===\n");
+    if (date_buf[0] != '\0') {
+        printf("Hari: %s\n", date_buf);
+    }
     printf("Total Order Hari Ini: %d\n", order_count);
     int completed = 0;
     int in_process = 0;
@@ -368,7 +397,8 @@ void generate_report(void) {
     char top_customer[MAX_NAME] = "";
 
     if (order_count == 0) {
-        goto error_handling;
+        printf("Data tidak valid untuk laporan.\n");
+        return;
     }
 
     for (int i = 0; i < order_count; i++) {
@@ -414,10 +444,6 @@ void generate_report(void) {
     printf("Layanan populer: %s\n", popular_service);
     printf("Pelanggan terbanyak: %s (%d order)\n", top_customer, max_orders);
     printf("Estimasi kapasitas besok: %.2f kg\n", total_weight * 1.1f);
-    return;
-
-error_handling:
-    printf("Data tidak valid untuk laporan.\n");
 }
 
 int recursive_predict(int hours, int stages) {

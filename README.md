@@ -22,14 +22,14 @@ LaundryExpress Pro adalah aplikasi CLI berbasis C untuk manajemen laundry digita
 ### Windows (MinGW / GCC)
 
 ```bash
-gcc main.c -o main.exe
+g++ main.cpp -o main.exe
 .\main.exe
 ```
 
 ### Linux / macOS
 
 ```bash
-gcc main.c -o main
+g++ main.cpp -o main
 ./main
 ```
 
